@@ -2,28 +2,41 @@ import { useState, useEffect } from "react";
 import { Header } from "../components/Header";
 import "../styles/Home.css";
 import { Footer } from "../components/Footer";
+import { addNewProduct, getAllProducts } from "../services/api.js";
 
 const Home = () => {
   // usestate retorna un array de dos elementos
   // 1 - estado al que le tengo que dar un nombre
   // 2 - una función para actualizar el estado
   const [products, setProducts] = useState([]);
+  const [formData, setFormData] = useState({
+    name: "",
+    price: "",
+    category: "",
+    image: "",
+    description: ""
+  })
+
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    // spread operator
+    setFormData({ ...formData, [name]: value })
+  }
+
+  const fetchingData = async () => {
+    const products = await getAllProducts()
+    setProducts(products)
+  }
 
   useEffect(() => {
-    // traer los datos
-    // utilizar una api
-    // petición http -> pedido hacia un servidor -> un servidor es una pc que brinda acceso a la db
-    // método 
-    // ruta
-    const traerLosDatos = async () => {
-      // Host -> https://fakestoreapi.com
-      const respuestaDeLaApi = await fetch("https://fakestoreapi.com/products", { method: "GET" });
-      const data = await respuestaDeLaApi.json();
-      setProducts(data);
-    };
-
-    traerLosDatos();
+    fetchingData()
   }, []);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    const addedProduct = await addNewProduct(formData)
+    setProducts([addedProduct, ...products])
+  }
 
   // Si el nombre es gabriel, mostrar la imagen de él, sino de juan
   return (
@@ -46,6 +59,56 @@ const Home = () => {
             commodi exercitationem libero minus quas in perferendis incidunt
             corrupti maiores!
           </p>
+        </section>
+        <section>
+          <h2>Agregar producto</h2>
+          <form onSubmit={handleSubmit}>
+            <input
+              name="name"
+              type="text"
+              placeholder="Titulo"
+              required
+              value={formData.name}
+              onChange={handleChange}
+            />
+
+            <input
+              name="price"
+              type="number"
+              placeholder="Precio"
+              required
+              value={formData.price}
+              onChange={handleChange}
+            />
+
+            <input
+              name="category"
+              type="text"
+              placeholder="Categoria"
+              required
+              value={formData.category}
+              onChange={handleChange}
+            />
+
+            <input
+              name="image"
+              type="text"
+              placeholder="URL image"
+              required
+              value={formData.image}
+              onChange={handleChange}
+            />
+
+            <textarea
+              name="description"
+              placeholder="Descripción"
+              required
+              value={formData.description}
+              onChange={handleChange}
+            >
+            </textarea>
+            <button>Agregar</button>
+          </form>
         </section>
         <section className="products">
           <h2>Nuestros productos</h2>
